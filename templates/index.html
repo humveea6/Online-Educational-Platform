@@ -24,7 +24,7 @@
 
 
 
-                {% if request.user.is_authenticated %}
+                {% if user.is_authenticated %}
                     <div class="personal">
                         <dl class="user fr">
                             <dd>bobby<img class="down fr" src="/static/images/top_down.png"/></dd>
@@ -88,7 +88,7 @@
 							<li >
 								<a href="teachers-list.html">授课教师</a>
 							</li>
-							<li ><a href="{% url 'orglist' %}">授课机构</a></li>
+							<li ><a href="{% url 'org:list' %}">授课机构</a></li>
 						</ul>
 					</div>
 				</div>

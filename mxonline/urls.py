@@ -25,6 +25,7 @@ import xadmin
 from apps.users.views import LoginView,LogoutView,RegisterView,ActiveUserView,\
     ForgetPwdView,SendFailView,SendSuccessView,ResetView,ModifyPwd
 from apps.organizations.views import OrgView
+from apps.organizations import urls
 
 
 from mxonline import settings
@@ -47,5 +48,10 @@ urlpatterns = [
     re_path('media/(?P<path>.*)$',serve,{"document_root":settings.MEDIA_ROOT}),
 
     #机构相关页面
-    path("org_list/",OrgView.as_view(),name="orglist"),
+    # path("org_list/",OrgView.as_view(),name="orglist"),
+    path("org/",include(('apps.organizations.urls',"organizations"),namespace="org")),
+
+    #用户相关操作页面
+    path("operation/",include(('apps.operations.urls',"operations"),namespace="op")),
+
 ]

@@ -25,7 +25,7 @@ class CourseOrg(BaseModel):
                               choices=(("pxjg","培训机构"),("gr","个人"),("gx","高校")))
     click_nums=models.IntegerField(verbose_name="点击数量",default=0)
     fav_nums=models.IntegerField(default=0,verbose_name="收藏数")
-    image=models.ImageField(upload_to="org/%Y/%m",verbose_name="logo",max_length=100)
+    image=models.ImageField(upload_to="org/%Y/%m",verbose_name="logo",max_length=100,null=True,blank=True)
     address=models.CharField(max_length=150,verbose_name="机构地址")
     stu_num=models.IntegerField(default=0,verbose_name="学习人数")
     course_num=models.IntegerField(default=0,verbose_name="课程数")
@@ -66,6 +66,9 @@ class Teacher(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def course_nums(self):
+        return self.course_set.all().count()
 
 
 
