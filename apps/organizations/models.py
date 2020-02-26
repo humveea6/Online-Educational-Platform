@@ -62,6 +62,7 @@ class Teacher(BaseModel):
     fav_nums = models.IntegerField(default=0, verbose_name="收藏数")
     age = models.IntegerField(default=0, verbose_name="年龄")
     image=models.ImageField(upload_to="teacher/%Y/%m",verbose_name="头像",max_length=100,null=True,blank=True)
+    is_gold = models.BooleanField(default=False, verbose_name="是否推荐")
 
     class Meta:
         verbose_name="教师"
