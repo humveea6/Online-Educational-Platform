@@ -17,9 +17,10 @@ class Course(BaseModel):
     tag=models.CharField(default="",verbose_name="课程标签",max_length=10)
     you_need_know=models.CharField(default="",max_length=300,verbose_name="课程须知")
     teacher_says=models.CharField(default="",max_length=300,verbose_name="老师告诉你")
+    notice=models.CharField(verbose_name="课程公告",max_length=200,default="")
 
     detail=models.TextField(verbose_name="课程详情")
-    image=models.ImageField(upload_to="course/%Y/%m",verbose_name="封面图",max_length=100)
+    image=models.ImageField(upload_to="course/%Y/%m",verbose_name="封面图",max_length=100,blank=True,null=True)
 
     class Meta:
         verbose_name="课程信息"
@@ -28,6 +29,10 @@ class Course(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def lesson_nums(self):
+        return self.lesson_set.all().count()
+
 
 
 class Lesson(BaseModel):
@@ -47,7 +52,7 @@ class Video(BaseModel):
     lesson=models.ForeignKey(Lesson,verbose_name="章节",on_delete=models.CASCADE)
     name=models.CharField(max_length=100,verbose_name="视频名")
     learn_time=models.IntegerField(default=0,verbose_name="学习时长（分钟数）")
-    url=models.CharField(max_length=200,verbose_name="访问地址")
+    url=models.CharField(max_length=1000,verbose_name="访问地址")
 
     class Meta:
         verbose_name=  "视频"

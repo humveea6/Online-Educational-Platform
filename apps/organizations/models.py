@@ -47,6 +47,9 @@ class CourseOrg(BaseModel):
         course=self.course_set.all()[:3]
         return course
 
+    def teacher_num(self):
+        return self.teacher_set.all().count()
+
 
 class Teacher(BaseModel):
     name=models.CharField(max_length=50,verbose_name="教师名")
@@ -58,7 +61,7 @@ class Teacher(BaseModel):
     click_nums = models.IntegerField(verbose_name="点击数量", default=0)
     fav_nums = models.IntegerField(default=0, verbose_name="收藏数")
     age = models.IntegerField(default=0, verbose_name="年龄")
-    image=models.ImageField(upload_to="teacher/%Y/%m",verbose_name="头像",max_length=100)
+    image=models.ImageField(upload_to="teacher/%Y/%m",verbose_name="头像",max_length=100,null=True,blank=True)
 
     class Meta:
         verbose_name="教师"

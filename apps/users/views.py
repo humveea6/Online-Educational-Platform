@@ -77,8 +77,11 @@ class LoginView(View):
         if request.user.is_authenticated:
             return HttpResponseRedirect(reverse("index"))
 
+        next = request.GET.get("next", "")
         # login_form=CaptchaForm()
-        return render(request,"login.html")
+        return render(request,"login.html",{
+            "next":next,
+        })
 
     def post(self,request, *args, **kwargs):
         login_form=LoginForm(request.POST)
@@ -100,7 +103,11 @@ class LoginView(View):
             if user is not None:
                 if user.is_active:
                     login(request,user)
-                    return HttpResponseRedirect(reverse("index"))
+                    next=request.GET.get("next","")
+                    if next:
+                        return HttpResponseRedirect(next)
+                    else:
+                        return HttpResponseRedirect(reverse("index"))
                 else:
                     msg="用户未激活！"
                     login_form._errors["msg"]=login_form.error_class([msg])

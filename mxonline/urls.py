@@ -54,4 +54,7 @@ urlpatterns = [
     #用户相关操作页面
     path("operation/",include(('apps.operations.urls',"operations"),namespace="op")),
 
+    #课程信息相关页面
+    path("course/",include(('apps.courses.urls',"courses"),namespace="course"))
+
 ]
