@@ -3,7 +3,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.contrib import messages
 
-from apps.operations.models import UserFavourite,CourseComments
+from apps.operations.models import UserFavourite,CourseComments,UserMessage
 from apps.operations.forms import UserFavForm,CourseCommentForm
 from apps.courses.models import Course
 from apps.organizations.models import CourseOrg,Teacher
@@ -70,6 +70,12 @@ class AddFavView(View):
                     teacher.fav_nums-=1
                     teacher.save()
 
+                message = UserMessage()
+                message.user = request.user
+                message.messgae = "取消收藏成功！"
+                message.has_read = False
+                message.save()
+
                 return JsonResponse({
                     "status":"success",
                     "msg":"收藏"
@@ -93,6 +99,12 @@ class AddFavView(View):
                     teacher=Teacher.objects.get(id=fav_id)
                     teacher.fav_nums+=1
                     teacher.save()
+
+                message = UserMessage()
+                message.user = request.user
+                message.messgae = "收藏成功！"
+                message.has_read = False
+                message.save()
 
                 return JsonResponse({
                     "status":"success",

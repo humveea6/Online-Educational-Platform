@@ -55,6 +55,7 @@ class UserMessage(BaseModel):
     #course = models.ForeignKey(Course, verbose_name="课程", on_delete=models.CASCADE)
     messgae = models.CharField(max_length=200, verbose_name="消息内容")
     has_read=models.BooleanField(default=False,verbose_name="是否已读")
+    # add_time = models.
 
     class Meta:
         verbose_name="用户消息"

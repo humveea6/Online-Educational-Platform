@@ -2,13 +2,20 @@ from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.hashers import make_password
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,JsonResponse
 from django.urls import reverse
 from apps.utils.email import send_email
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from apps.users.forms import LoginForm,RegisterForm,CaptchaForm,ForgetForm,ModifyPwdForm
+from apps.users.forms import LoginForm,RegisterForm,CaptchaForm,ForgetForm,ModifyPwdForm,UploadImageForm\
+    ,UserInfoForm,ChangePwdForm
 from apps.users.models import UserProfile,EmailVerifyRecord
+from apps.operations.models import UserCourses,UserFavourite,UserMessage
+from apps.courses.models import Course
+from apps.organizations.models import CourseOrg,Teacher
+
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
 
 class ActiveUserView(View):
@@ -21,6 +28,11 @@ class ActiveUserView(View):
                 user=UserProfile.objects.get(email=email)
                 user.is_active=True
                 user.save()
+                message = UserMessage()
+                message.user=user
+                message.messgae="注册成功！欢迎来到慕学在线！"
+                message.has_read=False
+                message.save()
         else:
             return render(request,"active_fail.html")
 
@@ -104,6 +116,11 @@ class LoginView(View):
                 if user.is_active:
                     login(request,user)
                     next=request.GET.get("next","")
+                    message = UserMessage()
+                    message.user = user
+                    message.messgae = "登录成功！"
+                    message.has_read = False
+                    message.save()
                     if next:
                         return HttpResponseRedirect(next)
                     else:
@@ -146,6 +163,7 @@ class SendFailView(View):
     def get(self,request):
         return render(request,"send_fail.html")
 
+
 class SendSuccessView(View):
     def get(self,request):
         return render(request,"send_success.html")
@@ -184,6 +202,12 @@ class ModifyPwd(View):
                 user.password=make_password(pwd1)
                 user.save()
 
+                message = UserMessage()
+                message.user = user
+                message.messgae = "密码修改成功！"
+                message.has_read = False
+                message.save()
+
                 EmailVerifyRecord.objects.filter(email=email).delete()
                 messages.info(request,"密码修改成功！")
                 return render(request,"login.html")
@@ -197,3 +221,179 @@ class ModifyPwd(View):
             })
 
 
+#用户个人中心-信息页
+class UserInfoView(LoginRequiredMixin,View):
+    login_url = '/login/'
+
+    def get(self,request,*args,**kwargs):
+        # captcha_form=CaptchaForm()
+        return render(request,"usercenter-info.html",{
+            # "captcha_form":captcha_form,
+        })
+
+
+    def post(self,request,*args,**kwargs):
+        user_info_form=UserInfoForm(request.POST,instance=request.user)
+        if user_info_form.is_valid():
+            user_info_form.save()
+
+            message = UserMessage()
+            message.user = request.user
+            message.messgae = "用户信息修改成功！"
+            message.has_read = False
+            message.save()
+
+            return JsonResponse({
+                "status":"success",
+            })
+        else:
+            return JsonResponse(user_info_form.errors)
+
+
+#用户上传头像
+class UploadImageView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def post(self,request,*args,**kwargs):
+        image_form=UploadImageForm(request.POST,request.FILES,instance=request.user)
+        if image_form.is_valid():
+            image_form.save()
+            messages.info(request,"头像修改成功！")
+
+            message = UserMessage()
+            message.user = request.user
+            message.messgae = "用户头像修改成功！"
+            message.has_read = False
+            message.save()
+
+            return JsonResponse({
+                "status":"success",
+            })
+        else:
+            messages.error(request,"头像修改失败！")
+            return JsonResponse({
+                "status": "fail",
+            })
+
+
+class ChangePwdView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def post(self,request,*args,**kwargs):
+        pwd_form=ChangePwdForm(request.POST)
+        if pwd_form.is_valid():
+            oldpwd=pwd_form.cleaned_data["oldpassword"]
+            pwd1 = pwd_form.cleaned_data["password1"]
+            pwd2 = pwd_form.cleaned_data["password2"]
+
+            user = authenticate(username=request.user.username, password=oldpwd)
+            if user is not None:
+                if pwd1!=pwd2:
+                    return JsonResponse({
+                        "status":"fail",
+                        "msg":"密码不一致",
+                    })
+                else:
+                    user=request.user
+                    user.set_password(pwd1)
+                    user.save()
+                    login(request,user)
+
+                    message = UserMessage()
+                    message.user = request.user
+                    message.messgae = "密码修改成功！"
+                    message.has_read = False
+                    message.save()
+
+                    return JsonResponse({
+                        "status":"success",
+                    })
+            else:
+                return JsonResponse({
+                    "status": "fail",
+                    "msg": "原始密码错误！",
+                })
+
+        else:
+            return JsonResponse(pwd_form.errors)
+
+
+class MyCourseView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self,request,*args,**kwargs):
+        user_courses=UserCourses.objects.filter(user=request.user)
+
+        return render(request,"usercenter-mycourse.html",{
+            "user_courses":user_courses,
+        })
+
+
+class FavOrgView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self,request,*args,**kwargs):
+
+        fav_ids=UserFavourite.objects.filter(user=request.user,fav_type=2)
+        orgs=[]
+        for fav_id in fav_ids:
+            org=CourseOrg.objects.get(id=fav_id.fav_id)
+            orgs.append(org)
+
+        print(2333444)
+
+        return render(request,"usercenter-fav-org.html",{
+            "orgs":orgs,
+        })
+
+
+class FavTeacherView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self,request,*args,**kwargs):
+
+        fav_ids=UserFavourite.objects.filter(user=request.user,fav_type=3)
+        teachers=[]
+        for fav_id in fav_ids:
+            teacher=Teacher.objects.get(id=fav_id.fav_id)
+            teachers.append(teacher)
+
+
+        return render(request,"usercenter-fav-teacher.html",{
+            "teachers":teachers,
+        })
+
+
+class FavCourseView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self,request,*args,**kwargs):
+
+        fav_ids=UserFavourite.objects.filter(user=request.user,fav_type=1)
+        courses=[]
+        for fav_id in fav_ids:
+            course=Course.objects.get(id=fav_id.fav_id)
+            courses.append(course)
+
+
+        return render(request,"usercenter-fav-course.html",{
+            "courses":courses,
+        })
+
+
+class MyMessageView(LoginRequiredMixin,View):
+    login_url = '/login/'
+    def get(self,request,*args,**kwargs):
+        my_messages=UserMessage.objects.filter(user=request.user).order_by("-add_time")
+        for message in my_messages:
+            message.has_read=True
+            message.save()
+
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        # Provide Paginator with the request object for complete querystring generation
+
+        p = Paginator(my_messages, per_page=5, request=request)
+
+        my_messages1 = p.page(page)
+
+        return render(request,"usercenter-message.html",{
+            "my_messages":my_messages1,
+        })

@@ -185,13 +185,17 @@ $(function(){
                     Dml.fun.showValidateError($("#repwd"), data.password2);
                 }else if(data.__all__){
                     Dml.fun.showValidateError($("#repwd"), data.__all__);
+                    // Dml.fun.showValidateError($("#pwd"), data.__all__);
                 }else if(data.status == "success"){
                     Dml.fun.showTipsDialog({
                         title:'提交成功',
                         h2:'修改密码成功，请重新登录!',
                     });
                     Dml.fun.winReload();
-                }else if(data.msg){
+                }else if(data.status == "fail"){
+                    Dml.fun.showValidateError($("#oldpwd"), data.msg);
+                }
+                else if(data.msg){
                     Dml.fun.showValidateError($("#pwd"), data.msg);
                     Dml.fun.showValidateError($("#repwd"), data.msg);
                 }
@@ -217,7 +221,8 @@ $(function(){
         sendCodeChangePhone($(this));
     });
     $('.changeemai_btn').on('click', function(){
-        Dml.fun.showDialog('#jsChangePhoneDialog', '#jsChangePhoneTips' ,'jsChangeEmailTips');
+        // Dml.fun.showDialog('#jsChangePhoneDialog', '#jsChangePhoneTips' ,'jsChangeEmailTips');
+        Dml.fun.showDialog('#jsChangeEmailDialog', '#jsChangePhoneTips' ,'jsChangeEmailTips');
     });
 
     //input获得焦点样式
@@ -270,6 +275,8 @@ $(function(){
                    _showValidateError($('#birth_day'), data.birthday);
                 }else if(data.address){
                    _showValidateError($('#address'), data.address);
+                }else if(data.username) {
+                    _showValidateError($('#username'), data.username);
                 }else if(data.status == "fail"){
                      Dml.fun.showTipsDialog({
                         title: '保存失败',
