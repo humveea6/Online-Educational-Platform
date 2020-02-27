@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.http import JsonResponse
+from django.db.models import Q
 
 
 from apps.organizations.models import CourseOrg,City,Teacher
@@ -135,6 +136,11 @@ class OrgView(View):
         #机构热度排序
         hot_orgs=all_orgs.order_by("-click_nums")[:3]
 
+        # 搜索关键字
+        keywords = request.GET.get("keywords", "")
+        if keywords:
+            all_orgs = all_orgs.filter(
+                Q(name__icontains=keywords) | Q(desc__icontains=keywords) | Q(address__icontains=keywords))
 
         #通过机构类别对课程机构进行筛选
         category=request.GET.get("ct","")
@@ -189,6 +195,12 @@ class TeacherListView(View):
         teachers=Teacher.objects.all()
         teacher_num=teachers.count()
         hot_teachers=teachers.order_by("-fav_nums")[:3]
+
+        # 搜索关键字
+        keywords = request.GET.get("keywords", "")
+        if keywords:
+            teachers = teachers.filter(
+                Q(name__icontains=keywords) | Q(points__icontains=keywords) | Q(work_company__icontains=keywords))
 
         sort=request.GET.get("sort","")
         if sort=="hot":

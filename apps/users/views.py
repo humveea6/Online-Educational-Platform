@@ -7,16 +7,29 @@ from django.urls import reverse
 from apps.utils.email import send_email
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.backends import ModelBackend
+from django.db.models import Q
 
 from apps.users.forms import LoginForm,RegisterForm,CaptchaForm,ForgetForm,ModifyPwdForm,UploadImageForm\
     ,UserInfoForm,ChangePwdForm
 from apps.users.models import UserProfile,EmailVerifyRecord
-from apps.operations.models import UserCourses,UserFavourite,UserMessage
+from apps.operations.models import UserCourses,UserFavourite,UserMessage,Banner
 from apps.courses.models import Course
 from apps.organizations.models import CourseOrg,Teacher
 
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
+
+#自定义登录验证
+class CustomAuth(ModelBackend):
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        print("34567")
+        try:
+            user=UserProfile.objects.get(Q(nick_name=username)|Q(username=username))
+            if user.check_password(password):
+                return user
+        except Exception as e:
+            return None
 
 class ActiveUserView(View):
     def get(self,request,active_code):
@@ -89,14 +102,19 @@ class LoginView(View):
         if request.user.is_authenticated:
             return HttpResponseRedirect(reverse("index"))
 
+        banners=Banner.objects.all().order_by("-add_time")[:3]
+
         next = request.GET.get("next", "")
         # login_form=CaptchaForm()
         return render(request,"login.html",{
             "next":next,
+            "banners":banners,
         })
 
     def post(self,request, *args, **kwargs):
         login_form=LoginForm(request.POST)
+
+        banners = Banner.objects.all().order_by("-add_time")[:3]
 
         if login_form.is_valid():
 
@@ -128,14 +146,25 @@ class LoginView(View):
                 else:
                     msg="用户未激活！"
                     login_form._errors["msg"]=login_form.error_class([msg])
-                    return render(request, "login.html", {"msg": "用户未激活！请前往邮箱激活", "login_form": login_form})
+                    return render(request, "login.html", {
+                        "msg": "用户未激活！请前往邮箱激活",
+                        "login_form": login_form,
+                        "banners":banners,
+                    })
 
             else:
                 print(233)
-                return render(request,"login.html",{"msg":"用户名或密码错误","login_form":login_form})
+                return render(request,"login.html",{
+                    "msg":"用户名或密码错误",
+                    "login_form":login_form,
+                    "banners": banners,
+                })
 
         else:
-            return render(request,"login.html",{"login_form":login_form})
+            return render(request,"login.html",{
+                "login_form":login_form,
+                "banners": banners,
+            })
 
 
 class ForgetPwdView(View):

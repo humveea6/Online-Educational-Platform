@@ -12,5 +12,5 @@ urlpatterns=[
     re_path('^(?P<org_id>\d+)/desc/$',OrgDescView.as_view(),name="desc"),
 
     re_path("^all_teachers/$",TeacherListView.as_view(),name="allteacher"),
-    re_path("^all_teachers/(?P<teacher_id>\d+)/$",TeacherDetailView.as_view(),name="teacherdetail"),
+    re_path("^teacher_detail/(?P<teacher_id>\d+)/$",TeacherDetailView.as_view(),name="teacherdetail"),
 ]

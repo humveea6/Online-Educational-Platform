@@ -3,10 +3,28 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.contrib import messages
 
-from apps.operations.models import UserFavourite,CourseComments,UserMessage
+from apps.operations.models import UserFavourite,CourseComments,UserMessage,Banner
 from apps.operations.forms import UserFavForm,CourseCommentForm
 from apps.courses.models import Course
 from apps.organizations.models import CourseOrg,Teacher
+
+
+#网站主页
+class IndexView(View):
+    def get(self,request,*args,**kwargs):
+        banners=Banner.objects.all().order_by("index")
+        courses=Course.objects.filter(is_banner=False).order_by("-add_time")[:6]
+        banner_courses=Course.objects.filter(is_banner=True)[:6]
+        if banner_courses.count()==0:
+            banner_courses=courses
+        course_orgs=CourseOrg.objects.all()[:15]
+
+        return render(request,"index.html",{
+            "banners":banners,
+            "courses":courses,
+            "banner_courses":banner_courses,
+            "course_orgs":course_orgs,
+        })
 
 
 class CommentView(View):
@@ -115,11 +133,3 @@ class AddFavView(View):
                 "status": "fail",
                 "msg": "参数错误"
             })
-
-
-
-
-
-
-
-

@@ -25,10 +25,17 @@ SECRET_KEY = 'd#32uwt1mys^k#6ntb0491w2&1#yj$z_i=z_^o88u6(3e0@##1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+
+#自定义登录验证
+AUTHENTICATION_BACKENDS=[
+    'apps.users.views.CustomAuth',
+    #使得未激活的用户也可以被查找到...
+    'django.contrib.auth.backends.AllowAllUsersModelBackend',
+]
 
 INSTALLED_APPS = [
     #'django.contrib.admin',
@@ -138,7 +145,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static/"),
 )
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn/')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 
@@ -151,8 +158,6 @@ EMAIL_HOST_PASSWORD="Niallhoran1d"
 EMAIL_USE_SSL = True
 EMAIL_FROM="humveea6@bupt.edu.cn"
 
-#使得未激活的用户也可以被查找到...
-AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.AllowAllUsersModelBackend']
 
 #分页相关设置
 PAGINATION_SETTINGS = {

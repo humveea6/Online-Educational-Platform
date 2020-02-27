@@ -22,6 +22,8 @@ class Course(BaseModel):
     detail=models.TextField(verbose_name="课程详情")
     image=models.ImageField(upload_to="course/%Y/%m",verbose_name="封面图",max_length=100,blank=True,null=True)
 
+    is_banner=models.BooleanField(default=False,verbose_name="是否在广告位展示")
+
     class Meta:
         verbose_name="课程信息"
         verbose_name_plural=verbose_name

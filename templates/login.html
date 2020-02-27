@@ -57,9 +57,9 @@
             <div class="fl slide">
                 <div class="imgslide">
                     <ul class="imgs">
-                            <li><a href=""><img width="483" height="472" src="/static/images/mysql.jpg" /></a></li>
-                            <li><a href=""><img width="483" height="472" src="/static/images/mysql.jpg" /></a></li>
-                            <li><a href=""><img width="483" height="472" src="/static/images/mysql.jpg" /></a></li>
+                        {% for banner in banners %}
+                            <li><a href="{{ banner.url }}"><img width="483" height="472" src="{{ banner.image.url }}" /></a></li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="unslider-arrow prev"></div>
@@ -72,7 +72,7 @@
                 </div>
                 <form class="tab-form" action="{% url 'login' %}?next={{ next }}" method="post" autocomplete="off" id="form1">
                     <div class="form-group marb20 {% if login_form.errors.username %}errorput{% endif %}">
-                        <input name="username" id="account_l" value="{{ login_form.username.value }}" type="text" placeholder="请输入您的邮箱" />
+                        <input name="username" id="account_l" value="{{ login_form.username.value }}" type="text" placeholder="请输入您的邮箱/昵称" />
                     </div>
                     <div class="form-group marb8 {% if login_form.errors.password %}errorput{% endif %}">
                         <input name="password" id="password_l" value="{{ login_form.password.value }}" type="password" placeholder="请输入您的密码" />

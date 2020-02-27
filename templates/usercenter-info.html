@@ -45,7 +45,7 @@
 				<form class="perinform" id="jsEditUserForm" autocomplete="off">
 					<ul class="right">
 						<li>昵&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;称：
-                           <input type="text" name="nick_name" id="nick_name" value="{{ user.nick_name|default_if_none:'' }}" maxlength="10">
+                           <input type="text" name="nick_name" id="nick_name" placeholder="设置后，您可以使用昵称登录" value="{{ user.nick_name|default_if_none:'' }}" maxlength="10">
                             <i class="error-tips"></i>
                         </li>
 						<li>生&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;日：

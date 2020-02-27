@@ -24,15 +24,15 @@ import xadmin
 
 from apps.users.views import LoginView,LogoutView,RegisterView,ActiveUserView,\
     ForgetPwdView,SendFailView,SendSuccessView,ResetView,ModifyPwd
-from apps.organizations.views import OrgView
-from apps.organizations import urls
+from apps.operations.views import IndexView
+
 
 
 from mxonline import settings
 
 urlpatterns = [
     path('admin/', xadmin.site.urls),
-    path('',TemplateView.as_view(template_name="index.html"),name="index"),
+    path('',IndexView.as_view(),name="index"),
     path('login/',LoginView.as_view(),name="login"),
     path('logout',LogoutView.as_view(),name="logout"),
     url(r'^captcha/', include('captcha.urls')),
@@ -46,6 +46,7 @@ urlpatterns = [
 
     #上传文件访问URL
     re_path('media/(?P<path>.*)$',serve,{"document_root":settings.MEDIA_ROOT}),
+    # re_path('static/(?P<path>.*)$',serve,{"document_root":settings.STATIC_ROOT}),
 
     #机构相关页面
     # path("org_list/",OrgView.as_view(),name="orglist"),

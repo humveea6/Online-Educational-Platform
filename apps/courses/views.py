@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.base import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 from apps.courses.models import Course,CourseResource,Video
 from apps.operations.models import UserFavourite,UserCourses,CourseComments
@@ -115,6 +116,11 @@ class CourseListView(View):
     def get(self,request,*args,**kwargs):
         all_courses=Course.objects.order_by("-add_time")
         hot_courses=Course.objects.order_by("-fav_num")[:3]
+
+        #搜索关键字
+        keywords=request.GET.get("keywords","")
+        if keywords:
+            all_courses=all_courses.filter(Q(name__icontains=keywords)|Q(desc__icontains=keywords)|Q(detail__icontains=keywords))
 
         #课程排序
         sort=request.GET.get("sort","")
