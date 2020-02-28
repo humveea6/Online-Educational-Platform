@@ -17,6 +17,26 @@ class UserAskAdmin(object):
 
 
 class UserCoursesAdmin(object):
+
+    #新增数据时在别的表中进行同步
+    def save_models(self):
+        obj=self.new_obj
+        if not obj.id:
+            obj.save()
+            course=obj.course
+            course.students_num+=1
+            course.save()
+
+            #欢迎用户加入课程
+            message = UserMessage()
+            message.user = obj.user
+            message.messgae = "欢迎您加入课程：{}的学习！".format(obj.course.name)
+            message.has_read = False
+            message.save()
+
+        else:
+            obj.save()
+
     pass
 
 

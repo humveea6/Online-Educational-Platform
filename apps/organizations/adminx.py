@@ -9,11 +9,21 @@ class TeacherAdmin(object):
     list_filter = ['org','name','work_year','work_company']
 
 
-class CourseOrgAdmin(object):
-    list_display = [ 'name','desc', 'click_nums','fav_nums']
-    search_fields = ['name','desc','click_nums','fav_nums']
-    list_filter = ['name','desc','click_nums','fav_nums']
+class TeacherInline(object):
+    model=Teacher
+    extra=0
 
+
+class CourseOrgAdmin(object):
+    list_display = [ 'name', 'click_nums','fav_nums']
+    search_fields = ['name','click_nums','fav_nums']
+    list_filter = ['name','click_nums','fav_nums']
+    inlines=[TeacherInline]
+
+    # 富文本编辑器配置
+    style_fields = {
+        "desc": "ueditor",
+    }
 
 
 class CityAdmin(object):

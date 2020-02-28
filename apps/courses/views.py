@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
 from apps.courses.models import Course,CourseResource,Video
-from apps.operations.models import UserFavourite,UserCourses,CourseComments
+from apps.operations.models import UserFavourite,UserCourses,CourseComments,UserMessage
 
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
@@ -62,6 +62,13 @@ class CourseLessonView(LoginRequiredMixin,View):
             user_course.save()
             course.students_num+=1
             course.save()
+
+            # 欢迎用户加入课程
+            message = UserMessage()
+            message.user = request.user
+            message.messgae = "欢迎您加入课程：{}的学习！".format(course.name)
+            message.has_read = False
+            message.save()
 
 
         #课程资源

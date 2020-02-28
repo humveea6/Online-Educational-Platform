@@ -1,7 +1,8 @@
 from django.db import models
+from DjangoUeditor.models import UEditorField
 
 # Create your models here.
-from apps.users.models import BaseModel
+from apps.users.models import BaseModel,UserProfile
 
 class City(BaseModel):
     name=models.CharField(max_length=50,verbose_name="城市")
@@ -19,7 +20,8 @@ class City(BaseModel):
 class CourseOrg(BaseModel):
     city=models.ForeignKey(City,on_delete=models.CASCADE,verbose_name="所在城市")
     name=models.CharField(max_length=50,verbose_name="机构名称")
-    desc=models.TextField(verbose_name="描述")
+    desc=UEditorField(verbose_name="描述",width=900,height=400,imagePath="organizations/ueditor/images/",
+                        filePath="organizations/ueditor/files/",default="")
     tag=models.CharField(default="全国知名",max_length=10,verbose_name="机构标签")
     category=models.CharField(default="pxjg",verbose_name="机构类别",max_length=4,
                               choices=(("pxjg","培训机构"),("gr","个人"),("gx","高校")))
@@ -50,8 +52,16 @@ class CourseOrg(BaseModel):
     def teacher_num(self):
         return self.teacher_set.all().count()
 
+    # 自定义后台列显示方法
+    def show_image(self):
+        from django.utils.safestring import mark_safe
+        return mark_safe("<img src='{}'>".format(self.image.url))
+
+    show_image.short_description = "机构封面图"
+
 
 class Teacher(BaseModel):
+    user=models.OneToOneField(UserProfile,null=True,blank=True,on_delete=models.CASCADE,verbose_name="对应系统用户名 ")
     name=models.CharField(max_length=50,verbose_name="教师名")
     org = models.ForeignKey(CourseOrg, on_delete=models.CASCADE, verbose_name="所属机构")
     work_year=models.IntegerField(default=0,verbose_name="工作年限")

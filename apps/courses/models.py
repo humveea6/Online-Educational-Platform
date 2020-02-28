@@ -1,6 +1,7 @@
 from django.db import models
 from apps.users.models import BaseModel
 from apps.organizations.models import Teacher,CourseOrg
+from DjangoUeditor.models import UEditorField
 # Create your models here.
 
 class Course(BaseModel):
@@ -19,7 +20,8 @@ class Course(BaseModel):
     teacher_says=models.CharField(default="",max_length=300,verbose_name="老师告诉你")
     notice=models.CharField(verbose_name="课程公告",max_length=200,default="")
 
-    detail=models.TextField(verbose_name="课程详情")
+    detail=UEditorField(verbose_name="课程详情",width=900,height=400,imagePath="courses/ueditor/images/",
+                        filePath="courses/ueditor/files/",default="")
     image=models.ImageField(upload_to="course/%Y/%m",verbose_name="封面图",max_length=100,blank=True,null=True)
 
     is_banner=models.BooleanField(default=False,verbose_name="是否在广告位展示")
@@ -35,6 +37,26 @@ class Course(BaseModel):
     def lesson_nums(self):
         return self.lesson_set.all().count()
 
+    #自定义后台列显示方法
+    def show_image(self):
+        from django.utils.safestring import mark_safe
+        return mark_safe("<img src='{}'>".format(self.image.url))
+
+    show_image.short_description="课程封面图"
+
+    def go_to(self):
+        from django.utils.safestring import mark_safe
+        return mark_safe("<a href='/course/{}'>跳转</a>".format(self.id))
+
+    go_to.short_description = "跳转至课程页面"
+
+
+#单独用于管理课程是否轮播的模型
+class BannerCourse(Course):
+    class Meta:
+        verbose_name="轮播课程"
+        verbose_name_plural=verbose_name
+        proxy=True
 
 
 class Lesson(BaseModel):

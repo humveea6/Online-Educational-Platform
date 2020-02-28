@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'captcha',
     'pure_pagination',
+    'DjangoUeditor',
+    'import_export',
 ]
 
 MIDDLEWARE = [

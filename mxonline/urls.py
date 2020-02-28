@@ -61,4 +61,7 @@ urlpatterns = [
     #个人中心相关页面
     path("users/",include(('apps.users.urls',"users"),namespace="users")),
 
+    #富文本编辑器
+    url(r'^ueditor/',include('DjangoUeditor.urls' )),
+
 ]
