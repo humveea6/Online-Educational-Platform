@@ -37,6 +37,11 @@ class UserProfile(AbstractUser):
     def unread_nums(self):
         return self.usermessage_set.filter(has_read=False).count()
 
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+
 
 class EmailVerifyRecord(models.Model):
     code=models.CharField(max_length=20,verbose_name="邮箱验证码")
